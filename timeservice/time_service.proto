@@ -6,7 +6,7 @@ option go_package = "timeservice/";
 
 import "google/api/annotations.proto";
 
-// Here is the overall greeting service definition where we define all our endpoints
+// Here is the overall time service definition where we define all our endpoints
 service TimeCheck {
   // Sends a greeting
   rpc GiveTime (TimeRequest) returns (TimeReply) {

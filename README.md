@@ -1,8 +1,14 @@
-Hi Ben
+### Demo of gRPC-Gateway exposing gRPC through REST API + generation of OAS specification based on a proto file
 
-I followed https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/introduction/ to create this app.
-I assume that you have golang installed on your mac. If not, homebrew can install it. 
-To get this app compiled you will need to install:
+This demo was prepared based on the example from https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/introduction/.
+
+### Prerequisites
+
+#### 1. The following software need to be installed prior executing next steps
+- golang installed - https://go.dev/doc/install
+- protoc installed - https://grpc.io/docs/protoc-installation/
+
+#### 2. To get this demo compiled, and any other grpc and grpc gateway go application, following needs to install
 ```
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -11,64 +17,78 @@ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 and
 
+#### 3. Install bufbuild 
+bufbuild can be installed from https://github.com/bufbuild/buf
+In case of macOS use homebrew as show below:
 ```
 brew install bufbuild/buf/buf
 ```
 
-I used `buf` to deal with protobuf.
-
+#### 4. Compilation
+Use `buf` to deal with protobuf.
+Execute following steps:
 ```
 buf dep update
 buf generate
 ```
-
-and then
-
+and then compile the app:
 ```
-go build -ldflags="-w -s"
-./protobufapitest
+go build -o grpcserver -ldflags="-w -s" ./server.go
+go build -o grpcgateway -ldflags="-w -s" ./gateway.go
 ```
-The app contains 3 elements:
-- grpc server (8080)
-- grpc client
-- grpc-gateway (8090)
 
-You can use curl to test it:
+The demo consists of 2 apps:
+- grpcserver running on the port 8080
+- grpcgateway running on the port 8090
+
+They can be run in the following way:
+1st terminal
+```go
+./grpcserver
+```
+2nd terminal
+```
+./grpcgateway
+```
+Then curl can be used to test it:
 ```
 curl -X POST -k http://localhost:8090/v1/example/echo -d '{"name": " hello"}'
 ```
 
-When it comes to OAS file generation out of protobuf then here is the recepie. However, protobuf needs to have annotations with API endpoints added to leverage grpc-gateway.
-
 ---
 
-To generate an OpenAPI Specification (OAS) file from a Protocol Buffers (protobuf) file using the `protoc` utility, you need to follow these steps:
+### Generating OpenAPI Specification based on proto file
+When it comes to OAS file generation based on proto file then here is the recipe. This is obvious, but just to make it clear. 
+As in case of building/generating grpc gateway, proto files need to be updated with API annotations for services that are
+to be exposed through grpc gateway. Here is an example of such annotation:
+```go
+service TimeCheck {
+  // Sends a greeting
+  rpc GiveTime (TimeRequest) returns (TimeReply) {
+    option (google.api.http) = {
+      post: "/api/v1/time"
+      body: "*"
+    };
+  }
+}
+```
+To generate an OpenAPI Specification (OAS) file from a Protocol Buffers (proto files) file using the `protoc` utility, 
+follow these steps:
 
-### 1. Install `protoc-gen-openapiv2` Plugin
+#### 1. Install `protoc-gen-openapiv2` Plugin
 
 - Make sure you have Go installed.
 - Install the plugin using the following command:
-  ```sh
-  go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
-  ```
-
-### 2. Add annotations.proto and http.proto to the project - NOT NEEDED ANYMORE LEFT FOR REFERENCE
-
+```sh
+go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@latest
 ```
-# in the root of the project
-mkdir -p google/api
-wget https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/annotations.proto  -O google/api/annotations.proto
-wget https://raw.githubusercontent.com/googleapis/googleapis/master/google/api/http.proto -O google/api/http.proto
-```
-### 3. Generate OpenAPI Specification
+
+#### 2. Generate OpenAPI Specification
 
 Run the `protoc` command with the `--openapiv2_out` option to generate the OpenAPI specification in the root of the project:
 
 ```sh
-protoc -I . \                                                                                                                    
-  --openapiv2_out . \
-  --openapiv2_opt logtostderr=true \
-  timeservice/time_service.proto
+protoc -I . --openapiv2_out . --openapiv2_opt logtostderr=true timeservice/time_service.proto
 ```
 
-OAS file will be generated in `helloworld/hello_world.swagger.json`
+OAS file will be generated in `timeservice/time_service.swagger.json`
