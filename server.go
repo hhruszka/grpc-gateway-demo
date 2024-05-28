@@ -5,14 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"time"
 
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
-
 	ts "github.com/hhruszka/protobufapitest/proto/timeservice"
+	"google.golang.org/grpc"
 )
 
 type server struct {
@@ -25,6 +21,7 @@ func NewServer() *server {
 
 func (s *server) GiveTime(ctx context.Context, in *ts.TimeRequest) (*ts.TimeReply, error) {
 	hour, minute, second := time.Now().Clock()
+	log.Printf("Received request for GiveTime() method. gRPC request: %s", in.String())
 	message := fmt.Sprintf("Hi %s!\nCurrent time is %02d:%02d:%02d", in.Name, hour, minute, second)
 	return &ts.TimeReply{Message: message}, nil
 }
@@ -42,32 +39,5 @@ func main() {
 	ts.RegisterTimeCheckServer(s, &server{})
 	// Serve gRPC server
 	log.Println("Serving gRPC on 0.0.0.0:8080")
-	go func() {
-		log.Fatalln(s.Serve(lis))
-	}()
-
-	// Create a client connection to the gRPC server we just started
-	// This is where the gRPC-Gateway proxies the requests
-	conn, err := grpc.NewClient(
-		"0.0.0.0:8080",
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	)
-	if err != nil {
-		log.Fatalln("Failed to dial server:", err)
-	}
-
-	gwmux := runtime.NewServeMux()
-	// Register Greeter
-	err = ts.RegisterTimeCheckHandler(context.Background(), gwmux, conn)
-	if err != nil {
-		log.Fatalln("Failed to register gateway:", err)
-	}
-
-	gwServer := &http.Server{
-		Addr:    ":8090",
-		Handler: gwmux,
-	}
-
-	log.Println("Serving gRPC-Gateway on http://0.0.0.0:8090")
-	log.Fatalln(gwServer.ListenAndServe())
+	log.Fatalln(s.Serve(lis))
 }
