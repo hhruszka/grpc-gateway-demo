@@ -1,4 +1,4 @@
-### Demo of gRPC-Gateway exposing gRPC through REST API + generation of OAS specification based on a proto file
+## Demo of gRPC-Gateway exposing gRPC through REST API + generation of OAS specification based on a proto file
 
 This demo was prepared based on the example from https://grpc-ecosystem.github.io/grpc-gateway/docs/tutorials/introduction/.
 
@@ -8,7 +8,7 @@ This demo was prepared based on the example from https://grpc-ecosystem.github.i
 - golang installed - https://go.dev/doc/install
 - protoc installed - https://grpc.io/docs/protoc-installation/
 
-#### 2. To get this demo compiled, and any other grpc and grpc gateway go application, following needs to install
+#### 2. To get this demo compiled, and any other grpc and grpc gateway go applications, following needs to be installed
 ```
 go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@latest
 go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
@@ -23,34 +23,39 @@ In case of macOS use homebrew as show below:
 ```
 brew install bufbuild/buf/buf
 ```
+---
+### Build gRPC Gateway Demo
+First, clone this repo and then use `buf` to generate server, client and gateway code with protoc plugins folling below steps.
 
-#### 4. Compilation
-Use `buf` to deal with protobuf.
-Execute following steps:
+#### 1. Generate code gRPC code
 ```
 buf dep update
 buf generate
 ```
-and then compile the app:
+#### 2. Compile gRPC server and gRPC gateway
 ```
 go build -o grpcserver -ldflags="-w -s" ./server.go
 go build -o grpcgateway -ldflags="-w -s" ./gateway.go
 ```
 
+#### 3. Run demo
 The demo consists of 2 apps:
 - grpcserver running on the port 8080
 - grpcgateway running on the port 8090
 
 They can be run in the following way:
+
 1st terminal
-```go
+```
 ./grpcserver
 ```
+
 2nd terminal
 ```
 ./grpcgateway
 ```
-Then curl can be used to test it:
+
+Then use curl or insomnia or postman to test it. Below example of curl:
 ```
 curl -X POST -k http://localhost:8090/v1/example/echo -d '{"name": " hello"}'
 ```
