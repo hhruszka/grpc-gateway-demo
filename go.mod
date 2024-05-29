@@ -1,4 +1,4 @@
-module github.com/hhruszka/protobufapitest
+module github.com/hhruszka/grpc-gateway-demo
 
 go 1.22.3
 

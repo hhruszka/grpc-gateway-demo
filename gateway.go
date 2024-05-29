@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	ts "github.com/hhruszka/protobufapitest/proto/timeservice"
+	ts "github.com/hhruszka/grpc-gateway-demo/proto/timeservice"
 )
 
 func main() {

@@ -7,7 +7,7 @@ import (
 	"net"
 	"time"
 
-	ts "github.com/hhruszka/protobufapitest/proto/timeservice"
+	ts "github.com/hhruszka/grpc-gateway-demo/proto/timeservice"
 	"google.golang.org/grpc"
 )
 
