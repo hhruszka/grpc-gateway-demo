@@ -8,11 +8,25 @@ import "google/api/annotations.proto";
 
 // Here is the overall time service definition where we define all our endpoints
 service TimeCheck {
-  // Sends a greeting
+  // Sends time
   rpc GiveTime (TimeRequest) returns (TimeReply) {
     option (google.api.http) = {
       post: "/api/v1/time"
       body: "*"
+    };
+  }
+
+  // Sends date
+  rpc GiveDate(Empty) returns (DateReply) {
+    option (google.api.http) = {
+      get: "/api/v1/date"
+    };
+  }
+
+  // Sends random quote
+  rpc GiveQuote(Empty) returns (QuoteReply) {
+    option (google.api.http) = {
+      get: "/api/v1/quote"
     };
   }
 }
@@ -26,3 +40,16 @@ message TimeRequest {
 message TimeReply {
   string message = 1;
 }
+
+// The response message containing the greetings
+message DateReply {
+  string message = 1;
+}
+
+// The response message containing the greetings
+message QuoteReply {
+  string message = 1;
+}
+
+// Define an empty message
+message Empty {}

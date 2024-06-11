@@ -6,3 +6,4 @@ certs
 .env
 grpcgateway
 grpcserver
+*.json
